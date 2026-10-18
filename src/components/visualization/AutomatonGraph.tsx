@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import cytoscape, { type Core } from 'cytoscape';
 import { useStore } from '../../store/useStore';
 import { parseTransitionKey } from '../../core/types';
-import { ZoomIn, ZoomOut, Maximize2, RotateCcw } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Camera } from 'lucide-react';
 
 export function AutomatonGraph() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -277,6 +277,19 @@ export function AutomatonGraph() {
     layout.run();
   };
 
+  const handleExportPNG = () => {
+    if (!cyRef.current) return;
+    const pngData = cyRef.current.png({
+      full: true,
+      scale: 2,
+      bg: '#1e293b',
+    });
+    const link = document.createElement('a');
+    link.href = pngData;
+    link.download = `automaton-${definition.type.toLowerCase()}.png`;
+    link.click();
+  };
+
   return (
     <div className="relative h-full w-full min-h-[300px]">
       <div ref={containerRef} className="cy-container" />
@@ -311,6 +324,13 @@ export function AutomatonGraph() {
           className="rounded-lg p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-dark)] transition-colors"
         >
           <RotateCcw className="h-4 w-4" />
+        </button>
+        <button
+          onClick={handleExportPNG}
+          title="Export Diagram as PNG"
+          className="rounded-lg p-1.5 text-[var(--accent)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-dark)] transition-colors"
+        >
+          <Camera className="h-4 w-4" />
         </button>
       </div>
 
