@@ -1,135 +1,101 @@
-# ⚡ DFA / NFA String Processing Visualizer
+# DFA/NFA String Processing Visualizer
 
-> **Course**: CSET302 — Automata Theory and Computability  
-> **Topic 7**: DFA/NFA String Processing Visualizer  
-> **Milestones**: M1 (Design & Specification) & M2 (Implementation & Demonstration)
+**CSET302 - Automata Theory and Computability | Topic 7**
 
-An interactive, high-fidelity web simulator that visualizes state transitions, tape head consumption, and computation paths for **Deterministic Finite Automata (DFA)** and **Non-deterministic Finite Automata (NFA)** with $\varepsilon$-transitions.
+An interactive web-based simulator that animates state transitions and computation paths for Deterministic and Non-deterministic Finite Automata, showing acceptance or rejection of input strings with step-by-step visualization.
 
----
+## Tech Stack
 
-## 🌟 Key Features
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18 + Vite + Cytoscape.js |
+| Backend | Spring Boot 3.2 + Java 17 |
+| Database | MongoDB |
+| API | REST (JSON) |
 
-1. **Dual Representation**:
-   - Interactive, draggable directed state transition graph (powered by Cytoscape.js).
-   - Real-time editable transition matrix ($\delta$).
-2. **Animation Engine**:
-   - Active state illumination (glow effects for regular and accepting states).
-   - Traversed transition edge pulse animations.
-   - Synchronized tape head scanning across symbols with empty string ($\varepsilon$) support.
-3. **Full Non-determinism Support**:
-   - Parallel subset construction execution for NFAs.
-   - Recursive depth-first $\varepsilon$-closure calculation.
-   - Hierarchical **NFA Computation Tree** showing all branching paths, dead paths, and accepting leaves.
-4. **Step-by-Step Playback Controls**:
-   - Play, Pause, Step Forward, Step Backward, Reset.
-   - Variable playback speed slider (100ms – 2000ms per transition).
-5. **Trace Log & Validation**:
-   - Auto-scrolling tabular trace of each intermediate step.
-   - Automated consistency validation (completeness checks, unreachable warnings, symbol verification).
-   - Clear Accept / Reject banner with the full computation path.
-6. **Curated Presets**:
-   - 6 pre-configured classic automata (DFA ending in "ab", even $a$'s, substring "abb", NFA branchers, and $\varepsilon$-NFA $a^*b^*c^*$) with one-click test cases.
+## Quick Start
 
----
+### Frontend (standalone — no backend needed)
 
-## 🛠️ Tech Stack
-
-- **Framework**: React 19 + TypeScript
-- **Bundler**: Vite 8
-- **Styling**: Tailwind CSS v4 + Dark Theme UI tokens
-- **Graph Visualization**: Cytoscape.js
-- **State Management**: Zustand
-- **Icons**: Lucide React
-- **Unit Testing**: Vitest
-
----
-
-## 🚀 Getting Started
-
-### 1. Installation
-Clone the repository and install all dependencies:
 ```bash
+cd frontend
 npm install
-```
-
-### 2. Run the Development Server
-```bash
 npm run dev
 ```
-Open your browser at `http://localhost:5173/`.
 
-### 3. Run Automated Tests
+Open http://localhost:5173 in your browser.
+
+### Backend (optional — for persistence)
+
+Prerequisites: Java 17+, Maven 3.8+, MongoDB running on port 27017
+
 ```bash
-npm test
-```
-Runs 15 test cases verifying DFA step execution, NFA subset expansion, cyclic $\varepsilon$-closure handling, and validation logic.
-
-### 4. Build for Production
-```bash
-npm run build
+cd backend
+mvn spring-boot:run
 ```
 
----
+API available at http://localhost:8080. Swagger UI at http://localhost:8080/swagger-ui.html.
 
-## 📂 Project Directory Structure
+## Features
+
+- **DFA Simulation** — Deterministic step-by-step string processing
+- **NFA Simulation** — Parallel computation paths with ε-closure
+- **Interactive Graph** — Cytoscape.js visualization with animated transitions
+- **Visual Tape Reader** — Bouncing read head showing current symbol
+- **Computation Trace** — Step-by-step table of state transitions
+- **Transition Table** — Formal δ matrix with live highlighting
+- **Batch Testing** — Test multiple strings at once
+- **6 Pre-built Examples** — Ready-to-use DFA and NFA automata
+- **Import/Export** — JSON format for saving and sharing automata
+- **Dark/Light Theme** — Toggle between visual modes
+
+## Architecture
+
+```
+┌──────────────────────────────────────┐
+│          React.js Frontend           │
+│  ┌────────────┐  ┌────────────────┐  │
+│  │  Automaton  │  │  Cytoscape.js  │  │
+│  │   Editor    │  │  Graph View    │  │
+│  └────────────┘  └────────────────┘  │
+│  ┌────────────────────────────────┐  │
+│  │  Step-by-Step Animation Panel  │  │
+│  └────────────────────────────────┘  │
+│  ┌────────────────────────────────┐  │
+│  │  Client-Side Simulation Engine │  │
+│  └────────────────────────────────┘  │
+└───────────────┬──────────────────────┘
+                │ REST API (optional)
+┌───────────────▼──────────────────────┐
+│        Spring Boot Backend           │
+│  ┌─────────────┐ ┌───────────────┐   │
+│  │ DFA/NFA     │ │ Automaton     │   │
+│  │ Simulators  │ │ Validator     │   │
+│  └─────────────┘ └───────────────┘   │
+└───────────────┬──────────────────────┘
+                │
+┌───────────────▼──────────────────────┐
+│            MongoDB                   │
+└──────────────────────────────────────┘
+```
+
+## Project Structure
 
 ```
 DFA-NFA-Visualizer/
-├── docs/
-│   └── M1_SPECIFICATION.md           # Formal problem statement, 5-tuple, pseudocode, manual trace
-├── src/
-│   ├── core/                          # Pure Automata Theory logic (No UI dependencies)
-│   │   ├── types.ts                   # 5-tuple definitions, step interfaces, tree types
-│   │   ├── validator.ts               # Completeness, valid symbols & states verification
-│   │   ├── epsilon-closure.ts         # DFS-based ε-closure computation
-│   │   ├── dfa-simulator.ts           # Deterministic string processing engine
-│   │   ├── nfa-simulator.ts           # Non-deterministic string & tree generator
-│   │   ├── step-generator.ts          # Unified simulation dispatcher
-│   │   ├── presets.ts                 # 6 built-in automata with test suites
-│   │   └── __tests__/
-│   │       └── engine.test.ts         # Automated unit test suite (Vitest)
-│   ├── components/
-│   │   ├── layout/
-│   │   │   └── Header.tsx             # Navigation, DFA/NFA mode switch, preset selector
-│   │   ├── editor/
-│   │   │   └── TransitionTable.tsx    # Live editable transition matrix (add/remove states/symbols)
-│   │   ├── simulation/
-│   │   │   ├── StringInput.tsx        # Input field with quick test buttons & error alerts
-│   │   │   ├── SimulationControls.tsx # Play, Pause, Step Forward/Back, Speed slider
-│   │   │   ├── TraceTable.tsx         # Step log with current step highlighting
-│   │   │   └── ResultBanner.tsx       # Accepted/Rejected verdict + witness path
-│   │   └── visualization/
-│   │       ├── AutomatonGraph.tsx     # Cytoscape.js interactive directed canvas
-│   │       ├── InputTape.tsx          # Animated tape cells with bouncing read head
-│   │       └── ComputationTree.tsx    # NFA branching visual tree
-│   ├── store/
-│   │   └── useStore.ts                # Zustand global reactive store
-│   ├── lib/
-│   │   └── utils.ts                   # Class name merger utilities
-│   ├── App.tsx                        # Master layout & formal 5-tuple summary card
-│   ├── index.css                      # Global design system & theme tokens
-│   └── main.tsx                       # React application root
-├── package.json
-└── vite.config.ts
+├── frontend/          # React + Vite application
+│   ├── src/
+│   │   ├── components/    # UI components
+│   │   ├── engine/        # Client-side DFA/NFA algorithms
+│   │   ├── services/      # Backend API integration
+│   │   └── utils/         # Graph styles, constants
+│   └── package.json
+├── backend/           # Spring Boot REST API
+│   ├── src/main/java/com/visualizer/automata/
+│   │   ├── controller/    # REST endpoints
+│   │   ├── service/       # Algorithm implementations
+│   │   ├── model/         # Data models
+│   │   └── repository/    # MongoDB repository
+│   └── pom.xml
+└── README.md
 ```
-
----
-
-## 📊 Manually Validated Test Case (Included in Project)
-
-- **Language**: Strings over $\{a, b\}$ containing substring `"abb"`.
-- **Automaton**:
-  - $Q = \{q_0, q_1, q_2, q_3\}$, $\Sigma = \{a, b\}$, $q_0 = \text{start}$, $F = \{q_3\}$.
-  - $\delta(q_0, a) = q_1, \delta(q_0, b) = q_0$
-  - $\delta(q_1, a) = q_1, \delta(q_1, b) = q_2$
-  - $\delta(q_2, a) = q_1, \delta(q_2, b) = q_3$
-  - $\delta(q_3, a) = q_3, \delta(q_3, b) = q_3$
-- **Input**: `"aabb"`
-- **Trace**:
-  1. Step 0: $q_0$ (Tape: `aabb`)
-  2. Step 1: Read `'a'` $\to q_1$ (Tape: `abb`)
-  3. Step 2: Read `'a'` $\to q_1$ (Tape: `bb`)
-  4. Step 3: Read `'b'` $\to q_2$ (Tape: `b`)
-  5. Step 4: Read `'b'` $\to q_3 \in F$ (Tape: $\varepsilon$)
-- **Result**: **ACCEPTED** (Verified both manually and in test suite).
