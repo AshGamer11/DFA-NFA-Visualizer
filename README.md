@@ -6,7 +6,6 @@
 [![Backend](https://img.shields.io/badge/Backend-Spring%20Boot%203.4%20%7C%20Java%2023-6db33f.svg)](http://localhost:8080)
 [![Database](https://img.shields.io/badge/Database-MongoDB%208.2-47a248.svg)](http://localhost:27017)
 [![Documentation](https://img.shields.io/badge/Docs-Algorithms%20%26%20Proposal-purple.svg)](#-project-documentation-docs)
-[![Presentation](https://img.shields.io/badge/Deliverable-M1%20%26%20M2%20PowerPoint%20Deck-orange.svg)](#-final-submission-presentation)
 
 An interactive, high-performance web-based simulator and visualizer for theoretical computer science. Designed to bridge the gap between abstract mathematical definitions ($M = \langle Q, \Sigma, \delta, q_0, F \rangle$) and dynamic execution by animating step-by-step string processing, tape consumption, and non-deterministic branching paths.
 
@@ -189,22 +188,3 @@ The system includes a verification suite of **20 rigorous test cases** across al
 | **Member 5** | **Database & Verification Lead** | MongoDB 8.2 integration, 21 pre-built textbook examples library, 20 test cases verification suite, QA testing. |
 
 ---
-
-## 📊 Final Submission Presentation
-
-The final evaluation presentation covering **Milestone M1 (5 Marks)** and **Milestone M2 (9 Marks)** is available as a professional 16:9 widescreen PowerPoint deck:
-
-- **Presentation File:** [`FINAL_SUBMISSION_PRESENTATION_M1_M2_v2.pptx`](file:///c:/Users/subhash%20chauhan/OneDrive/Documents/DFA-NFA-Visualizer/FINAL_SUBMISSION_PRESENTATION_M1_M2_v2.pptx)
-- **Deck Structure (12 High-Readability Slides):**
-  1. Title & Metadata
-  2. Problem Definition & Objectives (M1)
-  3. Formal Mathematical Specifications (M1)
-  4. Existing Tools Analysis & Feasibility (M1)
-  5. 3-Tier System Architecture (M1/M2)
-  6. Core Simulation Algorithms & Pseudocode for DFA, NFA, and $\epsilon$-NFA (M1)
-  7. Full-Stack Implementation & Key Modules (M2)
-  8. Comprehensive Test Suite (20 Test Cases) (M2)
-  9. Pre-Built Educational Library (21 Examples) (M2)
-  10. Live Demonstration Script & Protocol (M2)
-  11. 5-Member Team Task Division & Contributions (M2)
-  12. Conclusion, Challenges Overcome & Future Roadmap (M2)
