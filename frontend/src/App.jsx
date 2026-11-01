@@ -7,8 +7,10 @@ import Simulator from './components/Simulator/Simulator';
 import TransitionTable from './components/TransitionTable/TransitionTable';
 import ExampleLoader from './components/ExampleLoader/ExampleLoader';
 import IOModal from './components/common/IOModal';
+import TheoryCard from './components/Sidebar/TheoryCard';
+import ExamplesCard from './components/Sidebar/ExamplesCard';
 import { INITIAL_DFA, AUTOMATON_TYPES, SIMULATION_STATUS } from './utils/constants';
-import { validateAutomaton } from './engine/AutomatonValidator';
+import { validateAutomaton, isEpsilon } from './engine/AutomatonValidator';
 import { checkBackendHealth } from './services/api';
 
 export default function App() {
@@ -72,17 +74,24 @@ export default function App() {
     setValidation(valid);
   }, []);
 
-  // Handle machine type switch (DFA <-> NFA)
+  // Handle machine type switch (DFA <-> NFA without ε <-> ε-NFA)
   const handleTypeChange = (newType) => {
     if (newType === automaton.type) return;
+
+    let updatedTransitions = automaton.transitions || [];
+    // If switching away from ε-NFA to DFA or NFA (without ε), filter out ε-transitions
+    if (newType !== AUTOMATON_TYPES.ENFA) {
+      updatedTransitions = updatedTransitions.filter((t) => !isEpsilon(t.symbol));
+    }
 
     const updated = {
       ...automaton,
       type: newType,
-      id: `${newType.toLowerCase()}_custom_${Date.now()}`,
+      transitions: updatedTransitions,
+      id: `${newType.toLowerCase().replace(/[^a-z0-9]/g, '')}_custom_${Date.now()}`,
     };
     handleAutomatonChange(updated);
-    showToast(`Switched machine mode to ${newType}.`, 'info');
+    showToast(`Switched model to ${newType}.`, 'info');
   };
 
   // Load example
@@ -115,6 +124,17 @@ export default function App() {
     }));
   }, []);
 
+  const handleManualBackendCheck = async () => {
+    showToast('Checking Spring Boot connection...', 'info');
+    const res = await checkBackendHealth();
+    setBackendOnline(res.isOnline);
+    if (res.isOnline) {
+      showToast('Connected to Spring Boot backend (/api)!', 'success');
+    } else {
+      showToast('Spring Boot is offline. Operating in standalone client mode.', 'info');
+    }
+  };
+
   return (
     <div className="app-layout">
       <Header
@@ -126,20 +146,32 @@ export default function App() {
         onOpenExamples={() => setIsExampleModalOpen(true)}
         onOpenIOModal={() => setIsIOModalOpen(true)}
         onResetAutomaton={handleResetAutomaton}
+        onCheckBackend={handleManualBackendCheck}
       />
 
       <main className="main-workspace">
-        {/* Left Column: Automaton Specification Editor */}
-        <section className="panel-editor-col">
+        {/* Left Column: Specification Editor (UP), Examples, Theory (DOWN) */}
+        <aside className="panel-left-sidebar">
+          {/* 1. Specification & Transition Editor Card (UP) */}
           <AutomatonEditor
             automaton={automaton}
             onChange={handleAutomatonChange}
             validation={validation}
           />
-        </section>
 
-        {/* Center Column: Cytoscape Graph Visualization & Formal Table */}
-        <section className="panel-center-col">
+          {/* 2. Pre-Built Examples Card */}
+          <ExamplesCard
+            activeAutomatonId={automaton.id}
+            onLoadExample={handleLoadExample}
+          />
+
+          {/* 3. Formal Theory & 5-Tuple Card (DOWN) */}
+          <TheoryCard automaton={automaton} />
+        </aside>
+
+        {/* Right / Main Content: Graph Hero, Simulator Studio, Transition Matrix */}
+        <div className="panel-main-content">
+          {/* Section 1: Hero State Diagram Canvas */}
           <div className="graph-wrapper-card">
             <AutomatonGraph
               automaton={automaton}
@@ -150,25 +182,24 @@ export default function App() {
             />
           </div>
 
-          <TransitionTable
-            automaton={automaton}
-            activeStates={simulationState.activeStates}
-            activeTransitions={simulationState.activeTransitions}
-          />
-        </section>
-
-        {/* Right Column: String Processor & Computation Trace */}
-        <section className="panel-simulator-col">
+          {/* Section 2: Interactive String Simulation Studio */}
           <Simulator
             automaton={automaton}
             onSimulationUpdate={handleSimulationUpdate}
             sampleStrings={automaton.sampleStrings || []}
             backendOnline={backendOnline}
           />
-        </section>
+
+          {/* Section 3: Formal Transition Matrix (δ) */}
+          <TransitionTable
+            automaton={automaton}
+            activeStates={simulationState.activeStates}
+            activeTransitions={simulationState.activeTransitions}
+          />
+        </div>
       </main>
 
-      {/* Example Loader Modal */}
+      {/* Example Loader Modal (Quick Fullscreen Modal also available) */}
       <ExampleLoader
         isOpen={isExampleModalOpen}
         onClose={() => setIsExampleModalOpen(false)}

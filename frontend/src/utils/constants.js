@@ -3,7 +3,8 @@ export const EPSILON_VARIANTS = ['ε', 'e', 'E', 'lambda', 'λ'];
 
 export const AUTOMATON_TYPES = {
   DFA: 'DFA',
-  NFA: 'NFA',
+  NFA: 'NFA', // NFA without ε-moves
+  ENFA: 'ε-NFA', // NFA with ε-moves
 };
 
 export const SIMULATION_STATUS = {

@@ -31,8 +31,8 @@ export const validateAutomaton = (automaton) => {
   const { type, states, alphabet, startState, acceptStates, transitions } = automaton;
 
   // 1. Automaton type
-  if (![AUTOMATON_TYPES.DFA, AUTOMATON_TYPES.NFA].includes(type)) {
-    errors.push(`Invalid automaton type "${type}". Must be DFA or NFA.`);
+  if (![AUTOMATON_TYPES.DFA, AUTOMATON_TYPES.NFA, AUTOMATON_TYPES.ENFA].includes(type)) {
+    errors.push(`Invalid automaton type "${type}". Must be DFA, NFA, or ε-NFA.`);
   }
 
   // 2. States validation
@@ -133,8 +133,17 @@ export const validateAutomaton = (automaton) => {
         } else {
           dfaTransitionMap.set(key, to);
         }
+      } else if (type === AUTOMATON_TYPES.NFA) {
+        // NFA without ε-moves: No epsilon transitions allowed
+        if (symIsEps) {
+          errors.push(
+            `Transition #${idx + 1}: NFA (without ε-moves) cannot have epsilon (${symbol}) transitions. Switch to ε-NFA mode to allow epsilon transitions.`
+          );
+        } else if (!validAlphabet.has(symbol)) {
+          errors.push(`Transition #${idx + 1}: Symbol "${symbol}" is not in alphabet.`);
+        }
       } else {
-        // NFA
+        // ε-NFA (with ε-moves allowed)
         if (!symIsEps && !validAlphabet.has(symbol)) {
           errors.push(`Transition #${idx + 1}: Symbol "${symbol}" is not in alphabet or epsilon.`);
         }

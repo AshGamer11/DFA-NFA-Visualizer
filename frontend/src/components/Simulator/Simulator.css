@@ -186,6 +186,26 @@
   color: #ef4444;
 }
 
+.ready-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--bg-input);
+  border: 1px dashed var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease;
+}
+
+.ready-icon {
+  font-size: 1.1rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
 .result-icon {
   font-size: 1.5rem;
   line-height: 1;

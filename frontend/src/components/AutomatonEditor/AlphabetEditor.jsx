@@ -88,8 +88,8 @@ export default function AlphabetEditor({
           </div>
         ))}
 
-        {automatonType === AUTOMATON_TYPES.NFA && (
-          <div className="symbol-chip epsilon-chip" title="Epsilon (ε) empty transition is available in NFA mode">
+        {automatonType === AUTOMATON_TYPES.ENFA && (
+          <div className="symbol-chip epsilon-chip" title="Epsilon (ε) empty transition is available in ε-NFA mode">
             <span className="symbol-char">{EPSILON}</span>
             <span className="epsilon-badge">&epsilon;-move</span>
           </div>

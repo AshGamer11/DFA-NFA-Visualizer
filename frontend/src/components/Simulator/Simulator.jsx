@@ -22,6 +22,7 @@ export default function Simulator({
   const [showBatch, setShowBatch] = useState(false);
   const [batchInput, setBatchInput] = useState('');
   const [batchResults, setBatchResults] = useState(null);
+  const [hasSimulated, setHasSimulated] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -66,11 +67,13 @@ export default function Simulator({
 
   const handleRun = (overrideStr) => {
     const text = overrideStr !== undefined ? overrideStr : inputString;
+    setHasSimulated(true);
     runSimulation(text, true);
   };
 
   // Whenever automaton changes, reset and recalculate simulation
   useEffect(() => {
+    setHasSimulated(false);
     runSimulation(inputString);
   }, [automaton]);
 
@@ -132,6 +135,7 @@ export default function Simulator({
   const handleStepForward = () => {
     setIsPlaying(false);
     if (!simulationResult) return;
+    setHasSimulated(true);
     if (currentStepIndex < simulationResult.steps.length - 1) {
       setCurrentStepIndex((prev) => prev + 1);
     }
@@ -147,6 +151,7 @@ export default function Simulator({
   const handleReset = () => {
     setIsPlaying(false);
     setCurrentStepIndex(0);
+    setHasSimulated(false);
   };
 
   const handleInputChange = (e) => {
@@ -334,8 +339,8 @@ export default function Simulator({
           totalSteps={simulationResult?.steps?.length || 0}
         />
 
-        {/* Result banner if finished */}
-        {isAtFinalStep && simulationResult && (
+        {/* Result banner if finished; otherwise friendly ready prompt */}
+        {hasSimulated && isAtFinalStep && simulationResult ? (
           <div
             className={`result-banner ${
               simulationResult.accepted ? 'accepted' : 'rejected'
@@ -352,6 +357,13 @@ export default function Simulator({
               </span>
               <span className="result-reason">{simulationResult.reason}</span>
             </div>
+          </div>
+        ) : (
+          <div className="ready-banner">
+            <span className="ready-icon">ℹ</span>
+            <span>
+              Ready to simulate: Enter a test string and click <strong>Run</strong> (or press <strong>Enter</strong>) to begin.
+            </span>
           </div>
         )}
 

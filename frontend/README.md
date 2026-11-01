@@ -1,109 +1,106 @@
-# DFA / NFA Visualizer & String Processing Simulator
+# Frontend: DFA / NFA / ε-NFA Interactive Visualizer
 
-An interactive single-page application built with **React 18**, **Vite**, and **Cytoscape.js** for visualizing Deterministic Finite Automata (DFA) and Non-Deterministic Finite Automata (NFA with $\epsilon$-transitions). Developed for **CSET302: Automata Theory and Formal Languages**.
+An interactive Single-Page Application (SPA) built with **React 18**, **Vite**, and **Cytoscape.js** for simulating and exploring finite automata. Developed for **CSET302: Automata Theory and Computability** (Topic 7).
 
-## Key Features
-
-1. **Dual Automaton Support**:
-   - **DFA**: Strict determinism verification ($\delta: Q \times \Sigma \to Q$), trap state detection, completeness checks.
-   - **NFA**: Non-deterministic branching, $\epsilon$-closure computation, Thomson-style $\epsilon$-moves, parallel path exploration.
-
-2. **Interactive Graph Visualization (Cytoscape.js)**:
-   - Dynamic layout algorithms: **CoSE** (force-directed spring embedding), **Dagre** (hierarchical left-to-right DAG), and **Circle**.
-   - Start state entry arrow, double-bordered accept states.
-   - Self-loops and multi-symbol edge labels (`0, 1`).
-   - Real-time simulation animations: glowing current state nodes and illuminated transition edges.
-   - Zoom, Pan, Fit-to-screen, and Center controls with responsive canvas auto-resizing.
-
-3. **Step-by-Step String Processor**:
-   - **Interactive Tape Visualizer**: Read head pointer tracking each character consumed, remaining suffix, and current state.
-   - **Playback Controls**: Auto-play, Pause, Step Forward, Step Backward, Reset, and adjustable speed slider (0.25x – 4x).
-   - **Result Banner**: Clear `ACCEPTED` (emerald) or `REJECTED` (crimson) badge with mathematical explanation.
-   - **Batch Tester**: Test multiple strings simultaneously with instant pass/fail validation.
-
-4. **Computation Path & NFA Tree Display**:
-   - Interactive computation trace table ($Step$, $Current\ State$, $Symbol\ Read$, $Next\ State$, $Remaining$, $Status$).
-   - Click any step in the trace table to immediately jump the graph and tape to that point in time.
-   - NFA Tree View displaying all parallel exploration branches and marking accepting paths.
-
-5. **Formal Transition Table ($\delta$)**:
-   - Mathematical $\delta(Q, \Sigma)$ grid with formal row indicators (`→` for start, `*` for accept, `→*` for both).
-   - Active row and active cell highlighting during animation.
-
-6. **Pre-Built Automata Examples**:
-   - **DFA**: Strings ending in `"01"` over $\{0, 1\}$
-   - **DFA**: Strings with an even number of zeros over $\{0, 1\}$
-   - **DFA**: Binary numbers divisible by 3 (Modulo 3 counter)
-   - **NFA**: Strings containing substring `"101"`
-   - **NFA with $\epsilon$**: Strings starting with `'a'` OR ending with `'b'`
-   - **NFA with $\epsilon$**: Regular expression $(a|b)^*abb$ (Thomson construction)
-   - Includes one-click test case chips for quick verification.
-
-7. **JSON Import / Export**:
-   - Copy JSON to clipboard, download as `.json` file, or upload any saved automaton.
-   - Formal schema validator checks structure, determinism, and completeness before loading.
-
-8. **Dual-Mode Execution (Standalone + Backend API)**:
-   - **Standalone Mode**: Full client-side simulation engine (zero server dependency required).
-   - **Spring Boot Integration**: Seamlessly connects to backend at `http://localhost:8080/api` via Vite proxy, with automatic fallback when offline.
+> **Project Documentation Reference:**
+> - UI Wireframe & Styling Specs: [`docs/proposal.md`](file:///c:/Users/subhash%20chauhan/OneDrive/Documents/DFA-NFA-Visualizer/docs/proposal.md)
+> - Simulation Engine & Tricky Cases: [`docs/algorithms.md`](file:///c:/Users/subhash%20chauhan/OneDrive/Documents/DFA-NFA-Visualizer/docs/algorithms.md)
 
 ---
 
-## Installation & Running
+## 🚀 Key Features & Capabilities
 
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+### 1. 3-Way Model Selector
+- **DFA (Deterministic Finite Automaton):** Enforces strict determinism ($\delta : Q \times \Sigma \to Q$), single transition per symbol, and flags missing or non-deterministic transitions.
+- **NFA without $\epsilon$-Moves:** Allows multiple concurrent branches ($\delta : Q \times \Sigma \to \mathcal{P}(Q)$) while strictly disabling empty string ($\epsilon$) jumps.
+- **$\epsilon$-NFA:** Supports spontaneous $\epsilon$-transitions, computing $\epsilon$-closures ($\text{ECLOSE}(S)$) dynamically at each step.
 
-### Quick Start
-```bash
-# Navigate to the frontend directory
-cd frontend
+### 2. High-Performance Graph Studio (Cytoscape.js)
+- **Force-Directed Graph (CoSE layout):** Physics-simulated node positioning with interactive drag, zoom, and pan controls.
+- **Visual Node States:**
+  - **Start State:** Highlighted with a primary blue border and directional entry badge.
+  - **Accept State:** Rendered with formal double concentric borders.
+  - **Active State(s):** Rendered with an animated glowing amber halo indicating current computation threads.
+- **Edge Routing:** Self-loops, curved bidirectional arrows, and multi-symbol transition labels (`0, 1`).
+- **Optimal Canvas Sizing:** Balanced 460px container / 400px canvas height designed for widescreen viewing without pushing simulator controls out of view.
 
-# Install dependencies
-npm install
+### 3. Step-by-Step Simulation Studio
+- **Physical Tape Visualizer:**
+  - Displays input symbols on animated tape cells.
+  - Bouncing indicator pointer shows the exact position of the read head.
+  - Real-time cell styling: **Emerald** for consumed symbols, **Amber** for current read position, and **Muted Slate** for pending symbols.
+- **Playback Controls:** Play, Pause, Step Forward, Step Backward, and Reset with a variable animation speed slider ($0.25\times$ to $4.0\times$).
+- **Result Banner:** Clear, unambiguous `ACCEPTED` (green) or `REJECTED` (red) status indicator with full mathematical reasoning.
+- **NFA Execution Tree:** Visual branching tree rendering all parallel computational paths for non-deterministic automata.
 
-# Start development server
-npm run dev
+### 4. Synchronized Transition Matrix ($\delta$)
+- Dynamically rendered table based on the active 5-tuple.
+- Formal TOC row prefixes: `→` (Start), `*` (Accept), `→*` (Start & Accept).
+- Live synchronized highlighting: active states highlight the corresponding row, and the consumed symbol highlights the active column.
+
+### 5. 21 Pre-Built Textbook Examples Library
+Quickly load standard automata across 3 tabs (7 per model):
+- **7 DFA Examples:** Ends with `01`, Even 0s and Even 1s, Modulo-3 Divisibility, Exactly 2 `'a'`s, Starts 0 ends 1, Alternating parity, Decimal substring `42`.
+- **7 NFA (No $\epsilon$) Examples:** Substring `010`, Ends with `11`, Matching start and end symbols, 3rd symbol from end is `1`, Separated `1`s, `ab` or `ba` search, Modulo shortcut.
+- **7 $\epsilon$-NFA Examples:** Union $(01)^* \cup (10)^*$, Starting 0 ending 1 bridge, Concatenation $a^*b^*$, Regular expression $(a+b)^*abb$, Multi-pattern match, Parity loop return, Empty move jump.
+
+### 6. Dual-Engine Architecture & Fault Tolerance
+- **REST API Connection:** Queries Spring Boot backend at `http://localhost:8080/api/simulate` and `/api/examples`.
+- **Zero-Downtime Fallback:** Automatically falls back to the in-browser JavaScript engine (`engine/DFASimulator.js` & `engine/NFASimulator.js`) if the backend is unavailable or offline, ensuring reliable presentations.
+- **Real-Time Health Status:** Header displays a connection status badge (`Online (Backend Engine)` vs `Standalone (Client Engine)`).
+
+---
+
+## 📁 Directory Structure
+
+```
+frontend/
+├── index.html                  # HTML entry point
+├── package.json                # React 18, Cytoscape, Lucide icons dependencies
+├── vite.config.js              # Vite configuration (Port 3000, /api proxy to 8080)
+├── src/
+│   ├── main.jsx                # Application bootstrap
+│   ├── App.jsx                 # Master application component & layout state
+│   ├── App.css                 # 2-column widescreen layout (540px left sidebar)
+│   ├── index.css               # Global typography, CSS variables & themes
+│   ├── components/
+│   │   ├── AutomatonEditor/    # 5-tuple editor with 3-way model selector
+│   │   ├── AutomatonGraph/     # Cytoscape force-directed graph canvas
+│   │   ├── Simulator/          # Tape visualizer, controls, trace table & batch runner
+│   │   ├── TransitionTable/    # Formal δ transition matrix with active highlighting
+│   │   ├── ExampleLoader/      # 21 Pre-built textbook examples library
+│   │   ├── Theory/             # Theoretical 5-tuple specification card
+│   │   └── common/             # Header, HelpModal, Toast notifications
+│   ├── engine/
+│   │   ├── DFASimulator.js     # Client-side deterministic simulation algorithm
+│   │   ├── NFASimulator.js     # Client-side BFS ε-closure & NFA simulation
+│   │   └── examples.js         # Library of 21 textbook automata definitions
+│   └── services/
+│       └── api.js              # Axios REST client with fallback to local engine
 ```
 
-The application will launch at `http://localhost:3000`.
+---
+
+## 🛠 Local Setup & Running
+
+### Prerequisites
+- Node.js (version 18 or higher)
+- npm or yarn
+
+### Installation
+```bash
+cd frontend
+npm install
+```
+
+### Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Build for Production
 ```bash
 npm run build
 ```
-Production assets will be generated in `frontend/dist`.
-
----
-
-## Architecture
-
-```
-frontend/
-├── index.html
-├── package.json
-├── vite.config.js
-└── src/
-    ├── main.jsx
-    ├── App.jsx
-    ├── App.css
-    ├── index.css
-    ├── components/
-    │   ├── AutomatonEditor/       # States, Alphabet, Transitions, Formal Tuple
-    │   ├── AutomatonGraph/        # Cytoscape.js canvas and layout engine
-    │   ├── Simulator/             # Tape visualizer, controls, trace table, batch tester
-    │   ├── TransitionTable/       # Formal δ delta matrix
-    │   ├── ExampleLoader/         # Pre-built standard automata library
-    │   └── common/                # Header, StatusBadge, IOModal
-    ├── engine/
-    │   ├── DFASimulator.js        # Deterministic simulation algorithm
-    │   ├── NFASimulator.js        # Epsilon-closure & parallel branching algorithm
-    │   ├── AutomatonValidator.js  # 5-tuple consistency & determinism checks
-    │   └── examples.js            # Standard library data
-    ├── services/
-    │   └── api.js                 # Axios API service layer with auto-fallback
-    └── utils/
-        ├── constants.js           # Epsilon, Machine types, Status enums
-        └── graphStyles.js         # Cytoscape stylesheet (dark/light themes)
-```
+Production assets are output to `frontend/dist/`.

@@ -80,7 +80,7 @@ export default function AutomatonEditor({
   const handleSetAlphabet = (newAlphabet) => {
     const validSyms = new Set(newAlphabet);
     const updatedTransitions = transitions.filter(
-      (t) => validSyms.has(t.symbol) || (type === AUTOMATON_TYPES.NFA && t.symbol === EPSILON)
+      (t) => validSyms.has(t.symbol) || (type === AUTOMATON_TYPES.ENFA && t.symbol === EPSILON)
     );
     onChange({
       ...automaton,

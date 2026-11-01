@@ -18,7 +18,16 @@ const apiClient = axios.create({
 export const checkBackendHealth = async () => {
   try {
     const response = await apiClient.get('/examples');
-    return { isOnline: Array.isArray(response.data), data: response.data };
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      return { isOnline: true, data: response.data };
+    }
+  } catch (err) {
+    // try /health as fallback
+  }
+
+  try {
+    const response = await apiClient.get('/health');
+    return { isOnline: response.data?.status === 'UP', data: response.data };
   } catch {
     return { isOnline: false, error: 'Backend unreachable' };
   }

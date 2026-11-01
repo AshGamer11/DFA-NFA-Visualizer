@@ -4,61 +4,59 @@
   min-height: 100vh;
 }
 
+/* Spacious 2-Column Grid: Wide Left Sidebar (540px) + Fluid Right Studio */
 .main-workspace {
   display: grid;
-  grid-template-columns: 360px 1fr 380px;
-  gap: 16px;
-  padding: 16px 20px;
+  grid-template-columns: 540px 1fr;
+  gap: 28px;
+  padding: 22px 32px;
   flex: 1;
-  max-width: 1920px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  align-items: start;
 }
 
-.panel-editor-col {
+/* Left Sidebar: Theory, Examples, Specification */
+.panel-left-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
 }
 
-.panel-center-col {
+/* Right Main Work Area: Graph, Simulator Studio, Transition Table */
+.panel-main-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  min-width: 0;
-}
-
-.panel-simulator-col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   min-width: 0;
 }
 
 .graph-wrapper-card {
-  flex: 1;
   min-height: 480px;
   display: flex;
   flex-direction: column;
 }
 
+/* Toast Notifications */
 .toast-notification {
   position: fixed;
   bottom: 24px;
   right: 24px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   padding: 12px 18px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
   z-index: 3000;
   animation: slideInUp 0.3s ease;
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .toast-notification.success {
@@ -81,22 +79,30 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 1380px) {
+@media (max-width: 1440px) {
   .main-workspace {
-    grid-template-columns: 320px 1fr 340px;
-    gap: 12px;
-    padding: 12px 14px;
+    grid-template-columns: 460px 1fr;
+    gap: 22px;
+    padding: 18px 24px;
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .main-workspace {
     grid-template-columns: 1fr;
-    display: flex;
-    flex-direction: column;
+    gap: 20px;
+    padding: 16px;
+  }
+
+  .panel-left-sidebar {
+    order: 2;
+  }
+
+  .panel-main-content {
+    order: 1;
   }
 
   .graph-wrapper-card {
-    min-height: 400px;
+    min-height: 420px;
   }
 }

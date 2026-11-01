@@ -1,64 +1,62 @@
-# DFA/NFA String Processing Visualizer - Backend
+# Backend: DFA / NFA / ε-NFA Simulation & Persistence Service
 
-Spring Boot 3.2+ backend service for simulating, visualizing, validating, and persisting Deterministic Finite Automata (DFA) and Nondeterministic Finite Automata (NFA) with full epsilon (λ/ε) transition support.
+High-performance enterprise backend service built with **Spring Boot 3.4.0** and **Java 23** for validating, executing step-by-step simulations, and persisting finite automata definitions in **MongoDB 8.2**. Developed for **CSET302: Automata Theory and Computability** (Topic 7).
 
-Built for **CSET302 - Automata Theory**.
+> **Project Documentation Reference:**
+> - Full Architecture & Java Project Specs: [`docs/proposal.md`](file:///c:/Users/subhash%20chauhan/OneDrive/Documents/DFA-NFA-Visualizer/docs/proposal.md)
+> - BFS $\epsilon$-Closure & Simulation Logic: [`docs/algorithms.md`](file:///c:/Users/subhash%20chauhan/OneDrive/Documents/DFA-NFA-Visualizer/docs/algorithms.md)
 
 ---
 
 ## 🛠 Tech Stack
-- **Framework:** Spring Boot 3.2.5 (Java 17)
-- **Database:** MongoDB
-- **Build Tool:** Apache Maven
-- **API Documentation:** Springdoc OpenAPI 2.5.0 (Swagger UI)
+
+- **Framework:** Spring Boot 3.4.0
+- **Runtime:** Java 23 (JDK 23)
+- **Database:** MongoDB Community Server 8.2 (`mongodb://localhost:27017/automata_visualizer`)
+- **API Documentation:** SpringDoc OpenAPI 3 / Swagger UI (`/swagger-ui.html`)
+- **Build Tool:** Apache Maven 3.9+
 - **Testing:** JUnit 5, AssertJ, Mockito
 
 ---
 
-## 📁 Project Structure
+## 📁 Architecture & Directory Structure
 
 ```
 backend/
-├── pom.xml
-├── README.md
+├── pom.xml                                      # Maven dependencies (Spring Boot 3.4, Java 23, MongoDB)
+├── README.md                                    # Backend documentation
 ├── src/main/java/com/visualizer/automata/
-│   ├── AutomataApplication.java             # Spring Boot Application entrypoint
+│   ├── AutomataApplication.java                 # Spring Boot application bootstrap entry point
 │   ├── config/
-│   │   ├── CorsConfig.java                  # CORS configuration (all origins allowed for dev)
-│   │   └── MongoConfig.java                 # MongoDB repository & auditing configuration
-│   ├── model/
-│   │   ├── AutomatonType.java               # DFA or NFA enum
-│   │   ├── Automaton.java                   # MongoDB document (5-tuple: Q, Σ, δ, q0, F)
-│   │   ├── Transition.java                  # State transition (fromState, symbol, toStates)
-│   │   ├── SimulationRequest.java           # Request payload (by ID or inline automaton + input string)
-│   │   ├── SimulationResult.java            # Detailed simulation outcome, steps, active states, paths
-│   │   ├── SimulationStep.java              # Step trace (stepNumber, currentStates, symbol, nextStates, remainingInput)
-│   │   ├── ComputationPath.java             # Branching execution tree path for NFA/DFA
-│   │   ├── BatchSimulationRequest.java      # Batch simulation request
-│   │   ├── BatchSimulationResult.java       # Batch simulation outcome
-│   │   └── ValidationResult.java            # Mathematical validation outcome (valid, errors, warnings)
-│   ├── repository/
-│   │   └── AutomatonRepository.java         # Spring Data MongoDB repository
-│   ├── service/
-│   │   ├── DFASimulatorService.java         # Deterministic string simulation engine
-│   │   ├── NFASimulatorService.java         # Non-deterministic simulation engine with ε-closure & branch trees
-│   │   ├── AutomatonValidatorService.java   # Automata integrity & formal rule validator
-│   │   └── AutomatonService.java            # Business logic & pre-built example automata provider
+│   │   ├── CorsConfig.java                      # Cross-Origin Resource Sharing (CORS) rules
+│   │   └── MongoConfig.java                     # Spring Data MongoDB client configuration
 │   ├── controller/
-│   │   ├── AutomatonController.java         # CRUD, validation, and educational examples endpoints
-│   │   └── SimulatorController.java         # Single-string and batch simulation endpoints
+│   │   ├── RootController.java                  # Handles GET / (API status directory & Swagger links)
+│   │   ├── AutomatonController.java             # CRUD, health probe (/api/health), & pre-built examples
+│   │   └── SimulatorController.java             # Single-string & batch simulation endpoints
+│   ├── model/
+│   │   ├── Automaton.java                       # MongoDB document representing 5-tuple (Q, Σ, δ, q0, F)
+│   │   ├── AutomatonType.java                   # Model Enum (DFA, NFA)
+│   │   ├── Transition.java                      # Transition triple (fromState, symbol, toStates)
+│   │   ├── SimulationRequest.java               # Payload containing input string & automaton
+│   │   ├── SimulationResult.java                # Output containing trace steps, paths & acceptance
+│   │   ├── SimulationStep.java                  # Discrete state snapshot (stepIndex, activeStates, symbol)
+│   │   ├── BatchSimulationRequest.java          # Batch test inputs array
+│   │   ├── BatchSimulationResult.java           # Batch verification summary with pass/fail counts
+│   │   └── ValidationResult.java                # Mathematical consistency result (errors, warnings)
+│   ├── repository/
+│   │   └── AutomatonRepository.java             # Spring Data MongoDB document repository
+│   ├── service/
+│   │   ├── DFASimulatorService.java             # Deterministic simulation engine
+│   │   ├── NFASimulatorService.java             # Non-deterministic BFS ε-closure & multi-branch engine
+│   │   ├── AutomatonValidatorService.java       # Formal 5-tuple syntax and alphabet validator
+│   │   └── AutomatonService.java                # Business logic facade & pre-built example provider
 │   └── exception/
-│       ├── AutomatonNotFoundException.java  # 404 handler
-│       ├── InvalidAutomatonException.java   # 400 validation error handler
-│       ├── ErrorResponse.java               # Unified API error response payload
-│       └── GlobalExceptionHandler.java      # RestControllerAdvice
-├── src/main/resources/
-│   └── application.properties               # MongoDB uri, port 8080, and Swagger configs
-└── src/test/java/com/visualizer/automata/
-    └── service/
-        ├── DFASimulatorServiceTest.java     # Unit tests for DFA simulation & edge cases
-        ├── NFASimulatorServiceTest.java     # Unit tests for NFA simulation & epsilon-closure
-        └── AutomatonValidatorServiceTest.java # Automata definition validation tests
+│       ├── GlobalExceptionHandler.java          # Centralized error handler returning clean JSON responses
+│       ├── AutomatonNotFoundException.java      # 404 handler
+│       └── InvalidAutomatonException.java       # 400 validation error handler
+└── src/main/resources/
+    └── application.properties                   # Port 8080 & MongoDB connection string
 ```
 
 ---
@@ -66,74 +64,58 @@ backend/
 ## 🚀 Running the Backend
 
 ### Prerequisites
-- JDK 17+ installed (`java -version`)
-- Maven 3.8+ installed (`mvn -v`)
-- MongoDB running on `mongodb://localhost:27017`
+- Java 23 JDK installed (`java -version`)
+- MongoDB running on port 27017 (`mongod`)
+- Apache Maven 3.8+ installed (`mvn -version`)
 
-### Build and Test
+### Build and Run
 ```bash
-mvn clean test
-```
-
-### Run Application
-```bash
+cd backend
+mvn clean compile
 mvn spring-boot:run
 ```
 
-Once started:
-- API Base URL: `http://localhost:8080`
-- Swagger UI Documentation: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON Spec: `http://localhost:8080/api-docs`
+Once running:
+- **API Root Directory:** [http://localhost:8080/](http://localhost:8080/)
+- **Swagger UI Interactive Docs:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **OpenAPI 3 JSON Spec:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+- **Health Check Endpoint:** [http://localhost:8080/api/health](http://localhost:8080/api/health)
 
 ---
 
 ## 📡 REST API Reference
 
 | Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/automata` | Save a new automaton definition to MongoDB (auto-validated) |
-| `GET` | `/api/automata` | List all saved automata |
-| `GET` | `/api/automata/{id}` | Get automaton by ID |
-| `DELETE` | `/api/automata/{id}` | Delete automaton by ID |
-| `POST` | `/api/automata/validate` | Validate an automaton definition without saving |
-| `POST` | `/api/simulate` | Simulate string processing step-by-step (by ID or inline) |
-| `POST` | `/api/simulate/batch` | Simulate multiple strings against an automaton |
-| `GET` | `/api/examples` | Get 4 pre-built educational automata examples |
+|:---|:---|:---|
+| `GET` | `/` | Root server info, version, and links to documentation |
+| `GET` | `/api/health` | Health check endpoint returning `{ "status": "UP", "service": "automata-visualizer" }` |
+| `GET` | `/api/examples` | Returns pre-built educational example automata |
+| `GET` | `/api/automata` | Lists all user-saved automata definitions from MongoDB |
+| `POST` | `/api/automata` | Validates and saves an automaton definition to MongoDB |
+| `GET` | `/api/automata/{id}` | Retrieves a specific automaton by its MongoDB ID |
+| `DELETE` | `/api/automata/{id}` | Deletes an automaton definition by ID |
+| `POST` | `/api/automata/validate` | Validates a 5-tuple definition without persisting to MongoDB |
+| `POST` | `/api/simulate` | Simulates step-by-step string execution on an automaton |
+| `POST` | `/api/simulate/batch` | Simulates a batch of strings and returns execution results |
 
 ---
 
-## 💡 Pre-Built Example Automata
+## 🔍 Database Notes & Troubleshooting
 
-The backend ships with 4 pre-configured educational automata available at `GET /api/examples`:
-1. **DFA: Ending in '01'** (Alphabet: `{0, 1}`)
-2. **DFA: Even number of 0s** (Alphabet: `{0, 1}`)
-3. **NFA: Contains substring '101'** (Alphabet: `{0, 1}`)
-4. **NFA (with ε): Starts with 'a' or ends with 'b'** (Alphabet: `{a, b}`)
+### Understanding Port 27017 (MongoDB Wire Protocol)
+> **Important Note:** A common beginner question is: *"Why do I get `ERR_CONNECTION_RESET` when I visit `http://localhost:27017/automata_visualizer` in Chrome?"*
+> 
+> **The Reason:** Web browsers communicate via **HTTP** (Hypertext Transfer Protocol). MongoDB does **NOT** run an HTTP web server on port 27017; it uses MongoDB's private, binary **TCP wire protocol** (`mongod`). When Chrome sends an HTTP `GET` request to port 27017, MongoDB detects an invalid non-binary handshake and immediately closes the socket (`ERR_CONNECTION_RESET`). This is the expected and correct behavior.
 
----
-
-## 🧪 Algorithms Implemented
-
-### 1. DFA Deterministic Simulation
-- Begins at `startState`.
-- Iterates over each symbol in input string.
-- Follows deterministic transition $\delta(q, a) = q'$.
-- Records intermediate step state, symbol consumed, remaining input, and transition description.
-- Rejection occurs immediately if no valid transition exists (stuck).
-- Accepts if and only if final state is in `acceptStates`.
-
-### 2. NFA Simulation with Epsilon-Closure & Computation Tree
-- Calculates initial active state set via $\epsilon\text{-closure}(\{startState\})$.
-- For each symbol $a$, computes $\bigcup_{s \in Active} \delta(s, a)$, followed by an $\epsilon$-closure expansion.
-- Explores all non-deterministic branches using Depth-First Search (DFS) with loop detection on $\epsilon$-cycles.
-- Returns both the step-by-step active state progression and full individual computation paths showing the tree of possibilities.
-- Accepts if any active state in the final set belongs to `acceptStates`.
-
-### 3. Formal Automaton Validation
-- States set $Q$ non-empty.
-- Alphabet $\Sigma$ non-empty and does not contain reserved epsilon symbol.
-- Start state $q_0 \in Q$.
-- Accept states $F \subseteq Q$.
-- All transition sources and destinations belong to $Q$.
-- All transition symbols belong to $\Sigma$ (or $\epsilon$ for NFA).
-- For DFA: No $\epsilon$-transitions allowed, and at most 1 destination state per $(q, a)$ pair. Warnings issued for incomplete transition tables.
+### How to Inspect the Database Properly:
+1. **Via MongoDB Compass (GUI):**
+   - Open MongoDB Compass.
+   - Enter connection string: `mongodb://localhost:27017`
+   - Click **Connect** $\to$ Select database `automata_visualizer` $\to$ Collection `automata_definitions`.
+2. **Via MongoDB Shell (`mongosh`):**
+   ```bash
+   mongosh "mongodb://localhost:27017/automata_visualizer"
+   db.automata_definitions.find().pretty()
+   ```
+3. **Via Spring Boot REST API:**
+   - Query [http://localhost:8080/api/automata](http://localhost:8080/api/automata) in your browser or curl to view all saved automata formatted as clean JSON.

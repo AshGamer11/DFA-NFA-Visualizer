@@ -86,12 +86,10 @@ export const simulateNFA = (automaton, inputString = '') => {
     remainingInput: inputString,
     activeStates: initialStates,
     activeTransitions: initialClosureResult.epsilonTransitionsTaken,
-    status: chars.length === 0
-      ? (initialHasAccept ? SIMULATION_STATUS.ACCEPTED : SIMULATION_STATUS.REJECTED)
-      : SIMULATION_STATUS.RUNNING,
+    status: SIMULATION_STATUS.IDLE,
     description: initialStates.length > 1
-      ? `Initialized at start state ${startState} with ε-closure: {${initialStates.join(', ')}}.`
-      : `Initialized at start state ${startState}.`,
+      ? `Simulation ready at start state ${startState} with ε-closure: {${initialStates.join(', ')}}.`
+      : `Simulation ready at start state ${startState}.`,
   });
 
   // Empty string check

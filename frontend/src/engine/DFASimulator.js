@@ -34,10 +34,8 @@ export const simulateDFA = (automaton, inputString = '') => {
     remainingInput: inputString,
     activeStates: [currentState],
     activeTransitions: [],
-    status: chars.length === 0
-      ? (acceptSet.has(currentState) ? SIMULATION_STATUS.ACCEPTED : SIMULATION_STATUS.REJECTED)
-      : SIMULATION_STATUS.RUNNING,
-    description: `Simulation initialized at start state ${currentState}.`,
+    status: SIMULATION_STATUS.IDLE,
+    description: `Simulation ready at start state ${currentState}.`,
   });
 
   // Handle empty string

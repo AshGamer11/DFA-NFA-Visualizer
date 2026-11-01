@@ -14,8 +14,8 @@ export default function TransitionEditor({
   const [toState, setToState] = useState(states[0] || '');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Determine available symbols for selection
-  const availableSymbols = automatonType === AUTOMATON_TYPES.NFA
+  // Determine available symbols for selection: only ε-NFA mode permits epsilon moves
+  const availableSymbols = automatonType === AUTOMATON_TYPES.ENFA
     ? [...alphabet, EPSILON]
     : alphabet;
 

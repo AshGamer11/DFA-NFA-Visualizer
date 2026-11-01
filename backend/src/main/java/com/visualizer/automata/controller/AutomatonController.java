@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller for automaton definitions, CRUD management, validation,
@@ -63,5 +65,15 @@ public class AutomatonController {
     @Operation(summary = "Get pre-built educational example DFA and NFA automata")
     public ResponseEntity<List<Automaton>> getExamples() {
         return ResponseEntity.ok(automatonService.getExampleAutomata());
+    }
+
+    @GetMapping("/api/health")
+    @Operation(summary = "Health check endpoint for frontend connection status")
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        Map<String, Object> status = new HashMap<>();
+        status.put("status", "UP");
+        status.put("service", "automata-visualizer");
+        status.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.ok(status);
     }
 }
